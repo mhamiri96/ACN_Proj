@@ -9,20 +9,12 @@ except socket.error:
 	print ('Failed to create socket')
 	sys.exit()
 
-# def getSettings(NumberOfFlow,WeightOfflow,IntervaltOfflow,LengthOfflow,NumberOfPacket):
-# 	self.NOF=NumberOfFlow
-# 	self.WOF=WeightOfflow
-# 	self.IOF=IntervaltOfflow
-# 	self.LOF=LengthOfflow
-# 	self.NOP=NumberOfPacket
 host = 'localhost'
 port = 65431
 NumberOfFlow=int(sys.argv[1])
-
-NumberOfPacket = NOP[NumberOfFlow]
-IntervaltOfflow=IOF[NumberOfFlow]
-LengthOfPacket=packet_size[NumberOfFlow]
-print("wwwwwwwwwwwwww")
+IntervaltOfflow=float(sys.argv[2])
+LengthOfPacket=int(sys.argv[3])
+NumberOfPacket=int(sys.argv[4])
 for j in range(NumberOfPacket):
 	try:
 		length=int(gauss(LengthOfPacket,50))

@@ -2,7 +2,7 @@ import socket
 import sys
 import time
 import threading
-from main23 import getInfo
+from main import getInfo
 
 HOST = '127.0.0.1'
 PORT = 65431
@@ -28,16 +28,12 @@ daddr = None
 roundNumber = 0
 activeConn = 0
 source={}
-flowInfo,LengthOfflows,WeightOfflows,NumberOfFlows,IntervaltOfflows,NumberOfPackets=getInfo()
-IOF=IntervaltOfflows
-NOP=NumberOfPackets
+flowInfo,LengthOfFlows,WeightOfFlows,NumberOfFlows,IntervaltOfFlows,NumberOfPackets=getInfo()
 for i in range(0,NumberOfFlows):
 	temp = {i:{'time':[],'data':[], 'fno':[], 'active':0, 'sent':[0]}}
 	source |=temp
 print(source)
-packet_size = LengthOfflows
 count = 0
-numpackets=WeightOfflows
 sleeptime=0.01
 daddr=None
 globalTime = None
@@ -68,11 +64,12 @@ def recvpacket():
 			flag = 1
 		if len(source[fromSource]['fno']) == 0:
 			print ('First packet')
-			fno = roundNumber + (packet_size[fromSource]*1.0/numpackets[fromSource])
+			fno = roundNumber + (LengthOfFlows[fromSource]*1.0/WeightOfFlows[fromSource])
 			source[fromSource]['fno'].append(fno)
 		else:
+			len(source[fromSource]['fno'])
 			print ('length', len(source[fromSource]['fno']), 'source', fromSource)
-			fno = max(roundNumber, source[fromSource]['fno'][len(source[fromSource]['fno']) - 1]) + (packet_size[fromSource]*1.0/numpackets[fromSource])
+			fno = max(roundNumber, source[fromSource]['fno'][len(source[fromSource]['fno']) - 1]) + (LengthOfFlows[fromSource]*1.0/WeightOfFlows[fromSource])
 			source[fromSource]['fno'].append(fno)
 		source[fromSource]['time'].append(recvTime - globalTime)
 		source[fromSource]['data'].append(str(fromSource) + ';' + data)
@@ -87,7 +84,7 @@ def recvpacket():
 		weightsSum = 0
 		for i in range(NumberOfFlows):
 			if source[i]['active'] == 1:
-				weightsSum += numpackets[i]
+				weightsSum += WeightOfFlows[i]
 		if weightsSum == 0:
 			continue
 		rDash = 1.0/weightsSum
