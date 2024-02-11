@@ -20,7 +20,7 @@ same class is treated indistinctly.
 ## Desirable Properties
 In summary, from a technical point of view WFQ has
 three desirable properties. First, because it approximates
-GPS (General Processor Sharing) scheduler [4], it protects
+GPS (General Processor Sharing) scheduler, it protects
 traffic of different queues from each other, which is
 fundamental in a service differentiation context. Second,
 traffic in a queue can obtain worst-case end-to-end
