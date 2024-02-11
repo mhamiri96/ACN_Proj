@@ -50,7 +50,15 @@ Therefore, there is a scheduler which selects the packet with earliest estimated
   - **step 2 :** then you need to run **dest.py** file (```python dest.py```).
   - **step 3 :** at last, you just need to run **makefile** (```make -j 3```) or you can run as many as you like **source.py** file with your configs but corrsponding flow should be as same as one of the rows of **init.csv** file (```python source.py 0 0.5 100 100```).
   - All these commands need to be run in terminal with the same path of the project's path.
+## About files
+All communcations are handled by socket programming.
+- **source.py** : by using gaussian distribution, the length of each packet is generated randomly. Also, in this file, sending packets which corrspond to its own flow is been considered.
+- **dest.py** : This file contains info about destination and all packets of flows will be transmitted here.
+- **main.py** : It gets some configs from init.csv and also make ready other info which will be used in router.py
+- **router.py** : In this file, threading has been considered. We have two threads, one for recieving packets and the other on for sending packets. ```recvpacket()``` function consisted of WFQ scheduling and assigning and calculating round number and finished number of packets and putting packets in its own queue. 
 
+## Results
+Results can be visible in terminals of router.py, dest.py and makefile.
 ## Contributing
 Contributions and feedback on the WFQ scheduling and its applications in computer networking are welcomed. 
 
