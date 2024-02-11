@@ -24,33 +24,34 @@ except (socket.error , msg):
 	sys.exit()
 	
 print ('Socket bind complete')
+from main import getInfo
+
 daddr = None
 roundNumber = 0
 activeConn = 0
 source={}
 flowInfo,LengthOfFlows,WeightOfFlows,NumberOfFlows,IntervaltOfFlows,NumberOfPackets=getInfo()
 for i in range(0,NumberOfFlows):
-	temp = {i:{'time':[],'data':[], 'fno':[], 'active':0, 'sent':[0]}}
+	temp = {i:{'time':[],'data':[], 'fno':[], 'active':0, 'sent':[0],'NumOfPacket':[]}}
 	source |=temp
-print(source)
 count = 0
 sleeptime=0.01
 daddr=None
 globalTime = None
 flag = 0
-rDash = 0
+reversedWeights = 0
 
 def recvpacket():
 	global source
 	global flag
-	global rDash
+	global reversedWeights
 	while True:
 		d = s.recvfrom(1024)
 		recvTime = current_milli_time()
 		if len(d[0].decode().split(';'))==2:
 			fromSource, data=d[0].decode().split(';')
 		else:
-			fromSource,NumOfPack,rleng,data = d[0].decode().split(';')
+			fromSource,NumOfPack,recvLen,data = d[0].decode().split(';')
 		fromSource = int(fromSource)
 		if data == "dest":
 			global daddr
@@ -64,30 +65,30 @@ def recvpacket():
 			flag = 1
 		if len(source[fromSource]['fno']) == 0:
 			print ('First packet')
-			fno = roundNumber + (LengthOfFlows[fromSource]*1.0/WeightOfFlows[fromSource])
+			fno = roundNumber + (int(recvLen)*1.0/WeightOfFlows[fromSource])
 			source[fromSource]['fno'].append(fno)
 		else:
-			len(source[fromSource]['fno'])
-			print ('length', len(source[fromSource]['fno']), 'source', fromSource)
-			fno = max(roundNumber, source[fromSource]['fno'][len(source[fromSource]['fno']) - 1]) + (LengthOfFlows[fromSource]*1.0/WeightOfFlows[fromSource])
+			print ('Finish Number: ', len(source[fromSource]['fno']), ' from flow: ', fromSource)
+			fno = max(roundNumber, source[fromSource]['fno'][len(source[fromSource]['fno']) - 1]) + (int(recvLen)*1.0/WeightOfFlows[fromSource])
 			source[fromSource]['fno'].append(fno)
 		source[fromSource]['time'].append(recvTime - globalTime)
 		source[fromSource]['data'].append(str(fromSource) + ';' + data)
 		source[fromSource]['sent'].append(0)
-		roundNumber += ((recvTime - globalTime) - prevTime)*rDash
+		source[fromSource]['NumOfPacket'].append(NumOfPack)
+		roundNumber += ((recvTime - globalTime) - prevTime)*reversedWeights
 		lFno = max(source[fromSource]['fno'])
-		print (lFno, roundNumber)
+		print ('Latest Finish Number: ', lFno, ' Round Number: ', roundNumber)
 		if lFno > roundNumber:
 			source[fromSource]['active'] = 1
 		else:
 			source[fromSource]['active'] = 0
-		weightsSum = 0
+		SumOfWeight = 0
 		for i in range(NumberOfFlows):
 			if source[i]['active'] == 1:
-				weightsSum += WeightOfFlows[i]
-		if weightsSum == 0:
+				SumOfWeight += WeightOfFlows[i]
+		if SumOfWeight == 0:
 			continue
-		rDash = 1.0/weightsSum
+		reversedWeights = 1.0/SumOfWeight
 		prevTime = recvTime - globalTime
 	s.close()
 
@@ -113,9 +114,7 @@ t1 = threading.Thread(target=recvpacket)
 t1.daemon = True
 t2 = threading.Thread(target=sendpacket)
 t2.daemon = True
-
 t1.start()
 t2.start()
-
 while threading.active_count() > 0:
     time.sleep(0.1)
