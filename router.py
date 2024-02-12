@@ -93,7 +93,7 @@ def recvpacket():
 def sendpacket():
 	while True:
 		if addr:
-			mini = 999999999999999
+			mini = 99999999
 			index = 0
 			temp = 0
 			# transmit from lowest finish number list
@@ -104,7 +104,7 @@ def sendpacket():
 							mini = min(queues[i]['finishNum'])
 							index = j
 							temp = i
-			if mini != 999999999999999:
+			if mini != 99999999:
 				s.sendto(queues[temp]['data'][index].encode('utf-8'), addr)
 			queues[temp]['sent'][index] = 1
 			time.sleep(sleeptime)
