@@ -5,6 +5,8 @@ from random import gauss
 
 try:
 	s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+	s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
 except socket.error:
 	print ('Failed to create socket')
 	sys.exit()

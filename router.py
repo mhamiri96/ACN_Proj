@@ -7,8 +7,6 @@ from main import getInfo
 HOST = '127.0.0.1'
 PORT = 65431
 
-current_milli_time = lambda: int(round(time.time() * 1000))
-
 try:
 	s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 	s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -24,67 +22,67 @@ except (socket.error , msg):
 	sys.exit()
 	
 print ('Socket bind complete')
-from main import getInfo
 
-daddr = None
+from main import getInfo
 roundNumber = 0
-activeConn = 0
-source={}
+queues={}
 flowInfo,LengthOfFlows,WeightOfFlows,NumberOfFlows,IntervaltOfFlows,NumberOfPackets=getInfo()
 for i in range(0,NumberOfFlows):
-	temp = {i:{'time':[],'data':[], 'fno':[], 'active':0, 'sent':[0],'NumOfPacket':[]}}
-	source |=temp
-count = 0
+	temp = {i:{'time':[],'data':[], 'finishNum':[], 'active':0, 'sent':[0],'NumOfPacket':[]}}
+	queues |=temp
+
 sleeptime=0.01
-daddr=None
+addr=None
 globalTime = None
 flag = 0
 reversedWeights = 0
+currentTime = lambda: int(round(time.time() * 1000))
 
 def recvpacket():
-	global source
+	global queues
 	global flag
 	global reversedWeights
 	while True:
-		d = s.recvfrom(1024)
-		recvTime = current_milli_time()
+		d = s.recvfrom(2048)
+		recvTime = currentTime()
 		if len(d[0].decode().split(';'))==2:
 			fromSource, data=d[0].decode().split(';')
 		else:
 			fromSource,NumOfPack,recvLen,data = d[0].decode().split(';')
 		fromSource = int(fromSource)
 		if data == "dest":
-			global daddr
-			daddr= d[1]
-			s.sendto(('connection established').encode('utf-8'),daddr)
+			global addr
+			addr= d[1]
+			s.sendto(('connection established').encode('utf-8'),addr)
 			continue
 		if flag == 0:
 			prevTime = 0
 			globalTime = recvTime
 			roundNumber = 0
 			flag = 1
-		if len(source[fromSource]['fno']) == 0:
+		if len(queues[fromSource]['finishNum']) == 0:
 			print ('First packet')
-			fno = roundNumber + (int(recvLen)*1.0/WeightOfFlows[fromSource])
-			source[fromSource]['fno'].append(fno)
+			finishNum = roundNumber + (int(recvLen)*1.0/WeightOfFlows[fromSource])
+			queues[fromSource]['finishNum'].append(finishNum)
 		else:
-			print ('Finish Number: ', len(source[fromSource]['fno']), ' from flow: ', fromSource)
-			fno = max(roundNumber, source[fromSource]['fno'][len(source[fromSource]['fno']) - 1]) + (int(recvLen)*1.0/WeightOfFlows[fromSource])
-			source[fromSource]['fno'].append(fno)
-		source[fromSource]['time'].append(recvTime - globalTime)
-		source[fromSource]['data'].append(str(fromSource) + ';' + data)
-		source[fromSource]['sent'].append(0)
-		source[fromSource]['NumOfPacket'].append(NumOfPack)
+			print ('Finish Number: ', len(queues[fromSource]['finishNum']), ' from flow: ', fromSource)
+			finishNum = max(roundNumber, queues[fromSource]['finishNum'][len(queues[fromSource]['finishNum']) - 1]) + (int(recvLen)*1.0/WeightOfFlows[fromSource])
+			queues[fromSource]['finishNum'].append(finishNum)
+		queues[fromSource]['time'].append(recvTime - globalTime)
+		queues[fromSource]['data'].append(str(fromSource) + ';' + data)
+		queues[fromSource]['sent'].append(0)
+		queues[fromSource]['NumOfPacket'].append(NumOfPack)
 		roundNumber += ((recvTime - globalTime) - prevTime)*reversedWeights
-		lFno = max(source[fromSource]['fno'])
-		print ('Latest Finish Number: ', lFno, ' Round Number: ', roundNumber)
-		if lFno > roundNumber:
-			source[fromSource]['active'] = 1
+		lfinishNum = max(queues[fromSource]['finishNum'])
+		print ('Latest Finish Number: ', lfinishNum, ' Round Number: ', roundNumber)
+		if lfinishNum > roundNumber:
+			queues[fromSource]['active'] = 1
 		else:
-			source[fromSource]['active'] = 0
+			queues[fromSource]['active'] = 0
 		SumOfWeight = 0
+		# checking if some connection becomes inactive
 		for i in range(NumberOfFlows):
-			if source[i]['active'] == 1:
+			if queues[i]['active'] == 1:
 				SumOfWeight += WeightOfFlows[i]
 		if SumOfWeight == 0:
 			continue
@@ -94,20 +92,21 @@ def recvpacket():
 
 def sendpacket():
 	while True:
-		if daddr:
+		if addr:
 			mini = 999999999999999
 			index = 0
-			so = 0
+			temp = 0
+			# transmit from lowest finish number list
 			for i in range(NumberOfFlows):
-				for j in range(len(source[i]['fno'])):
-					if source[i]['sent'][j] == 0:
-						if source[i]['fno'][j] < mini:
-							mini = min(source[i]['fno'])
+				for j in range(len(queues[i]['finishNum'])):
+					if queues[i]['sent'][j] == 0:
+						if queues[i]['finishNum'][j] < mini:
+							mini = min(queues[i]['finishNum'])
 							index = j
-							so = i
+							temp = i
 			if mini != 999999999999999:
-				s.sendto(source[so]['data'][index].encode('utf-8'), daddr)
-			source[so]['sent'][index] = 1
+				s.sendto(queues[temp]['data'][index].encode('utf-8'), addr)
+			queues[temp]['sent'][index] = 1
 			time.sleep(sleeptime)
 
 t1 = threading.Thread(target=recvpacket)
