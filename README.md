@@ -58,7 +58,7 @@ All communcations are handled by socket programming.
 - **router.py** : In this file, threading has been considered. We have two threads, one for recieving packets and the other on for sending packets. ```recvpacket()``` function consisted of WFQ scheduling and assigning and calculating round number and finished number of packets and putting packets in its own queue. 
 
 ## Results
-Results can be visible in terminals of router.py, dest.py and makefile.
+Results can be visible in terminals of router.py, dest.py and makefile and for checking the output result of router, you need to check log of dest.py file.
 ## Contributing
 Contributions and feedback on the WFQ scheduling and its applications in computer networking are welcomed. 
 
