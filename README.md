@@ -48,13 +48,11 @@ Therefore, there is a scheduler which selects the packet with earliest estimated
 - The length of packets is assigned by Gaussian distribution and with setting 4 parameter in this file, the mean of this distribution has been determined and by default, the standard deviation is hard coded and is 50.
 
 ### **Run code**
-  - **step 1 :** after setting your configs in **init.csv** file, you should run **router.py** file (```python router.py [number of testing scenario]```).
+  - **step 1 :** after setting your configs in **init[number of testing scenario].csv** file, you should run **router.py** file (```python router.py [number of testing scenario]```).
   - **step 2 :** then you need to run **dest.py** file (```python dest.py```).
-<<<<<<< HEAD
-  - **step 3 :** at last, you just need to run **makefile** (```make```) or you can run as many as you like **source.py** file with your configs but corrsponding flow should be as same as one of the rows of **init.csv** file (```python source.py 0 0.5 100 100```).
+  - **step 3 :** at last, you just need to run **makefile** (```make```) or you can run as many as you like **source.py** file with your configs but corrsponding flow should be as same as one of the rows of **init[number of testing scenario].csv** file (```python source.py 0 0.5 100 100```).
 =======
-  - **step 3 :** at last, you just need to run **makefile** (```make -j [number of testing scenario]```) **but** you should consider that for each scenario you might need some changes in ```makefile``` (for example, you have 4 flows and the requirments of the flow is initialized and written down in **init[number of testing scenario].csv**, then you need to check the ```makefile``` if the first line has 4 instances and also by following, it has 4 commands with corresponding flow's info) or you can run as many as you like **source.py** file with your configs but corrsponding flow should be as same as one of the rows of **init[number of testing scenario].csv** file (for example```python source.py 0 0.5 100 100```).
->>>>>>> ad330c51cdd48305ffcc61be6746c62a378030be
+  - **step 3 :** at last, you just need to run **makefile** (```make```) **but** you should consider that for each scenario you might need some changes in ```makefile``` (for example, you have 4 flows and the requirments of the flow is initialized and written down in **init[number of testing scenario].csv**, then you need to check the ```makefile``` if the first line has 4 instances and also by following, it has 4 commands with corresponding flow's info) or you can run as many as you like **source.py** file with your configs but corrsponding flow should be as same as one of the rows of **init[number of testing scenario].csv** file (for example```python source.py 0 0.5 100 100```).
   - All these commands need to be run in terminal with the same path of the project's path.
 ## About files
 All communcations are handled by socket programming.
