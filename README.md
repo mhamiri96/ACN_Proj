@@ -48,7 +48,7 @@ Therefore, there is a scheduler which selects the packet with earliest estimated
 ### **Run code**
   - **step 1 :** after setting your configs in **init.csv** file, you should run **router.py** file (```python router.py```).
   - **step 2 :** then you need to run **dest.py** file (```python dest.py```).
-  - **step 3 :** at last, you just need to run **makefile** (```make -j 3```) or you can run as many as you like **source.py** file with your configs but corrsponding flow should be as same as one of the rows of **init.csv** file (```python source.py 0 0.5 100 100```).
+  - **step 3 :** at last, you just need to run **makefile** (```make```) or you can run as many as you like **source.py** file with your configs but corrsponding flow should be as same as one of the rows of **init.csv** file (```python source.py 0 0.5 100 100```).
   - All these commands need to be run in terminal with the same path of the project's path.
 ## About files
 All communcations are handled by socket programming.
