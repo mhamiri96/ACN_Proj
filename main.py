@@ -1,8 +1,11 @@
+import sys
+
 WeightOfflows=[]
 IntervaltOfflows=[]
 LengthOfflows=[]
 NumberOfPackets=[]
 flowInfo={}
+
 
 def getInfo():
     # print("Number of flows: ")
@@ -11,7 +14,7 @@ def getInfo():
     LengthOfflows=[]
     NumberOfPackets=[]
     global flowInfo
-    file = open('init.csv','r')
+    file = open('init{}.csv'.format(sys.argv[1]),'r')
     content = file.readlines()
     NumberOfFlows=int(len(content))
     for i in range(len(content)):
@@ -34,6 +37,6 @@ def getInfo():
         print(tempNP)
         tmp={i:{'NumberOfPacket':tempNP,'IntervaltOfflow':tempTI,'LengthOfPacket':tempLP}}
         flowInfo |=tmp
-    
+    file.close()
     return flowInfo,LengthOfflows,WeightOfflows,NumberOfFlows,IntervaltOfflows,NumberOfPackets
 getInfo()
